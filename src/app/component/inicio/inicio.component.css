@@ -1,0 +1,16 @@
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px; /* ancho de la barra de desplazamiento */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* color de fondo de la barra de desplazamiento */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0); /* color del pulgar de la barra de desplazamiento */
+    border-radius: 4px; /* radio de la esquina del pulgar de la barra de desplazamiento */
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2); /* color del pulgar de la barra de desplazamiento al pasar el mouse sobre ella */
+}

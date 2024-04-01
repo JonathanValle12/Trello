@@ -1,0 +1,86 @@
+<div class="ml-12 relative">
+    <app-header></app-header>
+
+    <main class="xl:ml-44 relative">
+        <select class="bg-blue-700 text-white p-1 pr-6 mt-10 font-bold">
+            <option>Board</option>
+            <option>Tablero</option>
+        </select>
+
+        <section class="flex flex-wrap mt-4 " style="height: 70vh;">
+            <article class="flex-grow bg-white mr-10 relative overflow-hidden mb-10" id="to-do">
+                <div class="flex items-center gap-3 ml-5 mt-5">
+                    <span class="bg-yellow-600 h-5 w-5 rounded-full"></span>
+                    <h2 class="text-2xl font-bold ">To do</h2>
+                    <span
+                        class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">0</span>
+                </div>
+                <p class="ml-5 text-gray-500">Este artículo no se ha iniciado</p>
+                <div class="mx-4 overflow-auto custom-scrollbar" cdkDropList [cdkDropListData]="tasksToDo" (cdkDropListDropped)="onTaskDrop($event, 'tasksToDo')">
+                    <div *ngFor="let task of tasksToDo"
+                        class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
+                        <p class="mb-20">{{task.text}}</p>
+
+                        <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i>
+                            {{task.createdDate}}</p>
+                    </div>
+
+                </div>
+                <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer"
+                    (click)="addcard()">
+                    <h3 class="text-white"><i class="fas fa-plus"></i> Add a card</h3>
+                </footer>
+            </article>
+
+            <article class="flex-grow bg-white mr-10 overflow-hidden relative h-full mb-10" id="in-progress">
+                <div class="flex items-center gap-3 ml-5 mt-5">
+                    <span class="bg-yellow-600 h-5 w-5 rounded-full"></span>
+                    <h2 class="text-2xl font-bold ">In progress</h2>
+                    <span
+                        class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">0</span>
+                </div>
+                <p class="ml-5 text-gray-500">Se esta trabajando activamente en esto</p>
+                <div class="mx-4 overflow-auto custom-scrollbar" style="max-height: calc(68vh - 40px)" cdkDropList
+                [cdkDropListData]="tasksInProgress" (cdkDropListDropped)="onTaskDrop($event, 'tasksInProgress')">
+                    <div *ngFor="let task of tasksInProgress"
+                        class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
+                        <p class="mb-20">Necesito hacer la cama</p>
+
+                        <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i> Sep 29</p>
+                    </div>
+                </div>
+                <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer">
+                    <h3 class="text-white"><i class="fas fa-plus"></i> Add a card</h3>
+                </footer>
+            </article>
+
+            <article class="flex-grow bg-white mr-10 overflow-hidden h-full relative" id="done">
+                <div class="flex items-center gap-3 ml-5 mt-5">
+                    <span class="bg-yellow-600 h-5 w-5 rounded-full"></span>
+                    <h2 class="text-2xl font-bold ">Done</h2>
+                    <span
+                        class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">0</span>
+                </div>
+                <p class="ml-5 text-gray-500">Esto se ha completado</p>
+                <div class="mx-4 overflow-auto custom-scrollbar" style="max-height: calc(68vh - 40px)" cdkDropList
+                [cdkDropListData]="tasksDone" (cdkDropListDropped)="onTaskDrop($event, 'tasksDone')">
+                    <div *ngFor="let task of tasksDone"
+                        class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
+                        <p class="mb-20">Necesito hacer la cama</p>
+
+                        <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i> Sep 29</p>
+                    </div>
+                </div>
+
+                <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer">
+                    <h3 class="text-white"><i class="fas fa-plus"></i> Add a card</h3>
+                </footer>
+            </article>
+
+        </section>
+        <input *ngIf="addInput"
+            class="w-11/12 text-white bg-gray-900 absolute bottom-0 p-3 rounded-md transition-opacity duration-500 ease-in-out opacity-100 input-class"
+            placeholder="Puedes usar para agregar un artículo" [(ngModel)]="inputValue" />
+
+    </main>
+</div>
