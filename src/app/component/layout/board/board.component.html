@@ -1,46 +1,72 @@
 <section class="flex flex-wrap mt-4 min-h-0" style="height: 70vh">
-    <article class="flex-grow bg-white mr-10 relative overflow-hidden mb-10" id="todo">
+    <article class="flex-grow bg-white h-full mr-10 relative overflow-hidden mb-10" id="todo">
         <div class="flex items-center gap-3 ml-5 mt-5">
-            <span class="bg-yellow-600 h-5 w-5 rounded-full"></span>
+            <span class="bg-green-900 h-5 w-5 rounded-full"></span>
             <h2 class="text-2xl font-bold ">Todo</h2>
-            <span
-                class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">0</span>
+            <span class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">{{tasksToDo.length}}</span>
         </div>
         <p class="ml-5 text-gray-500">Este artículo no se ha iniciado</p>
-        <div class="mx-4 overflow-auto custom-scrollbar" cdkDropList [cdkDropListData]="tasksToDo"
+        <div class="mx-4 h-full overflow-auto custom-scrollbar" cdkDropList [cdkDropListData]="tasksToDo"
             (cdkDropListDropped)="onTaskDrop($event, 'tasksToDo')">
             <ng-container *ngFor="let task of tasksToDo">
                 <div class="border border-gray-100 shadow-lg w-full h-24 p-5 mt-5 relative" cdkDrag>
-                    <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
-    
+                    <div class="flex justify-between">
+                        <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
+                        <div class="relative z-10">
+                            <i class="fas fa-ellipsis-v cursor-pointer text-gray-600 hover:text-gray-800" (click)="openMenu(task.id)"></i>
+                            <div *ngIf="selectedTaskId === task.id" class="absolute right-0 mt-2 bg-white border border-gray-300 shadow-md rounded-md">
+                                <ul class="py-2">
+                                    <li>
+                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="deleteTask(task)">Eliminar</a>
+                                    </li>
+                                    <li>
+                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="openModal(task)">Editar</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                     <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i>
                         {{task.createdDate}}</p>
                 </div>
             </ng-container>
-    
         </div>
         <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointe footer-todo"
             (click)="addcard('todo')">
             <h3 class="text-white"><i class="fas fa-plus"></i> Add a card</h3>
         </footer>
     </article>
-    
-    <article class="flex-grow bg-white mr-10 overflow-hidden relative mb-10" id="in-progress">
+
+    <article class="flex-grow bg-white mr-10 h-full overflow-hidden relative mb-10" id="in-progress">
         <div class="flex items-center gap-3 ml-5 mt-5">
-            <span class="bg-yellow-600 h-5 w-5 rounded-full"></span>
+            <span class="bg-yellow-700 h-5 w-5 rounded-full"></span>
             <h2 class="text-2xl font-bold ">In progress</h2>
-            <span
-                class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">0</span>
+            <span class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">{{tasksInProgress.length}}</span>
         </div>
         <p class="ml-5 text-gray-500">Se esta trabajando activamente en esto</p>
-        <div class="mx-4 overflow-auto custom-scrollbar pb-14" style="max-height: calc(68vh - 40px)" cdkDropList
+        <div class="mx-4 h-full overflow-auto custom-scrollbar pb-14" style="max-height: calc(68vh - 40px)" cdkDropList
             [cdkDropListData]="tasksInProgress" (cdkDropListDropped)="onTaskDrop($event, 'tasksInProgress')">
             <ng-container *ngFor="let task of tasksInProgress">
-                <div class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
-                <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
-    
-                <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i> {{task.createdDate}}</p>
-            </div>
+                <div class="border border-gray-100 shadow-lg w-full h-24 p-5 mt-5 relative" cdkDrag>
+                    <div class="flex justify-between">
+                        <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
+                        <div class="relative z-10">
+                            <i class="fas fa-ellipsis-v cursor-pointer text-gray-600 hover:text-gray-800" (click)="openMenu(task.id)"></i>
+                            <div *ngIf="selectedTaskId === task.id" class="absolute right-0 mt-2 bg-white border border-gray-300 shadow-md rounded-md">
+                                <ul class="py-2">
+                                    <li>
+                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="deleteTask(task)">Eliminar</a>
+                                    </li>
+                                    <li>
+                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="openModal(task)">Editar</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i>
+                        {{task.createdDate}}</p>
+                </div>
             </ng-container>
         </div>
         <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer footer-in-progress"
@@ -48,26 +74,40 @@
             <h3 class="text-white"><i class="fas fa-plus"></i> Add a card</h3>
         </footer>
     </article>
-    
-    <article class="flex-grow bg-white mr-10 overflow-hidden relative mb-10" id="done">
+
+    <article class="flex-grow bg-white mr-10 h-full overflow-hidden relative mb-10" id="done">
         <div class="flex items-center gap-3 ml-5 mt-5">
-            <span class="bg-yellow-600 h-5 w-5 rounded-full"></span>
+            <span class="bg-purple-700 h-5 w-5 rounded-full"></span>
             <h2 class="text-2xl font-bold ">Done</h2>
-            <span
-                class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">0</span>
+            <span class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">{{tasksDone.length}}</span>
         </div>
         <p class="ml-5 text-gray-500">Esto se ha completado</p>
-        <div class="mx-4 overflow-auto custom-scrollbar" style="max-height: calc(68vh - 40px)" cdkDropList
+        <div class="mx-4 h-full overflow-auto custom-scrollbar" style="max-height: calc(68vh - 40px)" cdkDropList
             [cdkDropListData]="tasksDone" (cdkDropListDropped)="onTaskDrop($event, 'tasksDone')">
             <ng-container *ngFor="let task of tasksDone">
-                <div class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
-                <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
-    
-                <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i> {{task.createdDate}}</p>
-            </div>
+                <div class="border border-gray-100 shadow-lg w-full h-24 p-5 mt-5 relative" cdkDrag>
+                    <div class="flex justify-between">
+                        <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
+                        <div class="relative z-10">
+                            <i class="fas fa-ellipsis-v cursor-pointer text-gray-600 hover:text-gray-800" (click)="openMenu(task.id)"></i>
+                            <div *ngIf="selectedTaskId === task.id" class="absolute right-0 mt-2 bg-white border border-gray-300 shadow-md rounded-md">
+                                <ul class="py-2">
+                                    <li>
+                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="deleteTask(task)">Eliminar</a>
+                                    </li>
+                                    <li>
+                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="openModal(task)">Editar</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i>
+                        {{task.createdDate}}</p>
+                </div>
             </ng-container>
         </div>
-    
+
         <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer footer-done"
             (click)="addcard('done')">
             <h3 class="text-white"><i class="fas fa-plus"></i> Add a card</h3>
@@ -76,8 +116,8 @@
 </section>
 
 <input *ngIf="addInputDone || addInputToDo || addInputInProgress"
-class="w-11/12 text-white bg-gray-900 absolute bottom-10 p-3 rounded-md input-class"
-placeholder="Puedes usar para agregar un artículo" [(ngModel)]="inputValue" />
+    class="w-11/12 text-white bg-gray-900 absolute bottom-10 p-3 rounded-md input-class"
+    placeholder="Puedes usar para agregar un artículo" [(ngModel)]="inputValue" />
 
 <div *ngIf="modal">
     <app-modal [task]="selectedTask" [visible]="modal"></app-modal>

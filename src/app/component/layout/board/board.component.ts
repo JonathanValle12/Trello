@@ -24,11 +24,16 @@ export class BoardComponent implements OnInit {
   public status: string = '';
   public modal: any = false;
   public selectedTask: any;
+  public selectedTaskId: string | null = null;
 
   constructor(private elementRef: ElementRef) { }
   
   ngOnInit(): void {
     this.loadTasksFromLocalStorage();
+  }
+
+  openMenu(taskId: any): any {
+    this.selectedTaskId = this.selectedTaskId === taskId ? null : taskId;
   }
 
   addcard(column: string) {
@@ -54,7 +59,7 @@ export class BoardComponent implements OnInit {
 
   @HostListener('window:keydown.enter', ['$event'])
   onEnter(event: KeyboardEvent) {
-    if (this.addInputToDo || this.addInputInProgress || this.addInputDone && this.inputValue.trim() !== '' && event.key === 'Enter') {
+    if ((this.addInputToDo || this.addInputInProgress || this.addInputDone) && this.inputValue.trim() !== '' && event.key === 'Enter') {
       this.addInputToDo = false;
       this.addInputInProgress = false;
       this.addInputDone = false;
@@ -140,5 +145,19 @@ export class BoardComponent implements OnInit {
     this.modal = !this.modal;
     this.selectedTask = task;
   }
-  
+  deleteTask(task: any) {
+    console.log(task);
+
+    let tasks: any[] = JSON.parse(localStorage.getItem('tasks') || '[]');
+
+    const index = tasks.findIndex(t => t.id === task.id);
+
+    if (index !== -1) {
+      tasks.splice(index, 1);
+
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+
+      this.loadTasksFromLocalStorage();
+    }
+  }
 }

@@ -1,14 +1,25 @@
 <div class="ml-12 relative">
     <app-header></app-header>
 
-    <main class="xl:ml-44 relative">
-        <div class="flex items-center mt-12">
-            <p>Layout</p>
-            <div [ngClass]="{'bg-gray-900 border border-gray-300' : selectLayout === 'Board'}" class=" cursor-pointer hover:bg-gray-900 ml-5 border bg-gray-700 px-5 py-1 text-white font-bold" (click)="cambioLayout('Board')">
-                <p>Board</p>
+    <main class="relative">
+        <div class="flex justify-between items-center mt-12">
+            <div class="flex items-center">
+                <p>Layout</p>
+                <div [ngClass]="{'bg-gray-900 border border-gray-300' : selectLayout === 'Board'}"
+                    class=" cursor-pointer hover:bg-gray-900 ml-5 border bg-gray-700 px-5 py-1 text-white font-bold"
+                    (click)="cambioLayout('Board')">
+                    <p>Board</p>
+                </div>
+                <div [ngClass]="{'bg-gray-900 border border-gray-300' : selectLayout === 'Table'}"
+                    class=" cursor-pointer hover:bg-gray-900 border bg-gray-700 px-5 py-1 text-white font-bold"
+                    (click)="cambioLayout('Table')">
+                    <p>Table</p>
+                </div>
             </div>
-            <div [ngClass]="{'bg-gray-900 border border-gray-300' : selectLayout === 'Table'}" class=" cursor-pointer hover:bg-gray-900 border bg-gray-700 px-5 py-1 text-white font-bold" (click)="cambioLayout('Table')">
-                <p>Table</p>
+
+            <div *ngIf="selectLayout === 'Board'" class="flex items-center gap-2 mx-10 cursor-pointer bg-red-800 text-white hover:bg-red-700 p-2 rounded">
+                <i class="fas fa-trash-alt"></i>
+                <button>Eliminar Todo</button>
             </div>
         </div>
 
