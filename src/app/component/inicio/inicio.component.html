@@ -16,14 +16,16 @@
                         class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">0</span>
                 </div>
                 <p class="ml-5 text-gray-500">Este artículo no se ha iniciado</p>
-                <div class="mx-4 overflow-auto custom-scrollbar" cdkDropList [cdkDropListData]="tasksToDo" (cdkDropListDropped)="onTaskDrop($event, 'tasksToDo')">
-                    <div *ngFor="let task of tasksToDo"
-                        class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
-                        <p class="mb-20">{{task.text}}</p>
+                <div class="mx-4 overflow-auto custom-scrollbar" cdkDropList [cdkDropListData]="tasksToDo"
+                    (cdkDropListDropped)="onTaskDrop($event, 'tasksToDo')">
+                    <ng-container *ngFor="let task of tasksToDo">
+                        <div class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
+                            <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
 
-                        <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i>
-                            {{task.createdDate}}</p>
-                    </div>
+                            <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i>
+                                {{task.createdDate}}</p>
+                        </div>
+                    </ng-container>
 
                 </div>
                 <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer"
@@ -41,13 +43,14 @@
                 </div>
                 <p class="ml-5 text-gray-500">Se esta trabajando activamente en esto</p>
                 <div class="mx-4 overflow-auto custom-scrollbar" style="max-height: calc(68vh - 40px)" cdkDropList
-                [cdkDropListData]="tasksInProgress" (cdkDropListDropped)="onTaskDrop($event, 'tasksInProgress')">
-                    <div *ngFor="let task of tasksInProgress"
-                        class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
+                    [cdkDropListData]="tasksInProgress" (cdkDropListDropped)="onTaskDrop($event, 'tasksInProgress')">
+                    <ng-container *ngFor="let task of tasksInProgress">
+                        <div class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
                         <p class="mb-20">Necesito hacer la cama</p>
 
                         <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i> Sep 29</p>
                     </div>
+                    </ng-container>
                 </div>
                 <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer">
                     <h3 class="text-white"><i class="fas fa-plus"></i> Add a card</h3>
@@ -63,13 +66,14 @@
                 </div>
                 <p class="ml-5 text-gray-500">Esto se ha completado</p>
                 <div class="mx-4 overflow-auto custom-scrollbar" style="max-height: calc(68vh - 40px)" cdkDropList
-                [cdkDropListData]="tasksDone" (cdkDropListDropped)="onTaskDrop($event, 'tasksDone')">
-                    <div *ngFor="let task of tasksDone"
-                        class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
+                    [cdkDropListData]="tasksDone" (cdkDropListDropped)="onTaskDrop($event, 'tasksDone')">
+                    <ng-container *ngFor="let task of tasksDone">
+                        <div class="border border-gray-100 shadow-lg w-full p-5 mt-5 relative" cdkDrag>
                         <p class="mb-20">Necesito hacer la cama</p>
 
                         <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i> Sep 29</p>
                     </div>
+                    </ng-container>
                 </div>
 
                 <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer">
@@ -83,4 +87,8 @@
             placeholder="Puedes usar para agregar un artículo" [(ngModel)]="inputValue" />
 
     </main>
+
+    <div *ngIf="modal">
+        <app-modal [task]="selectedTask" [visible]="modal"></app-modal>
+    </div>
 </div>

@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { v4 as uuidv4 } from 'uuid';
 import { CdkDragDrop, CdkDropList, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ModalComponent } from '../modal/modal.component';
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [HeaderComponent, CommonModule, FormsModule, DragDropModule],
+  imports: [HeaderComponent, ModalComponent, CommonModule, FormsModule, DragDropModule],
   templateUrl: './inicio.component.html',
   styleUrl: './inicio.component.css'
 })
@@ -21,6 +22,8 @@ export class InicioComponent implements OnInit {
   public tasksToDo: any[] = [];
   public tasksInProgress: any[] = [];
   public tasksDone: any[] = [];
+  public modal: any = false;
+  public selectedTask: any;
 
   constructor(private elementRef: ElementRef) {}
 
@@ -29,7 +32,6 @@ export class InicioComponent implements OnInit {
   }
   addcard() {
     this.addInput = !this.addInput;
-    console.log("hola");
   }
 
   loadTasksFromLocalStorage(): void {
@@ -38,7 +40,6 @@ export class InicioComponent implements OnInit {
     this.tasksToDo = storedTasks.filter(task => task.status === 'to do');
     this.tasksInProgress = storedTasks.filter(task => task.status === 'In progress');
     this.tasksDone = storedTasks.filter(task => task.status === 'Done');
-    console.log(storedTasks);
   }
 
   @HostListener('window:click', ['$event'])
@@ -84,7 +85,6 @@ onClick(event: MouseEvent) {
   onTaskDrop(event: CdkDragDrop<any[]>, listName: string) {
     const task = event.item.data;
   
-    console.log(event.item);
     // Determinar la lista de destino según el id del contenedor
     let destinationList: any[] = [];
     if (listName === 'tasksToDo') {
@@ -93,7 +93,6 @@ onClick(event: MouseEvent) {
     } else if (listName === 'tasksInProgress') {
       destinationList = this.tasksInProgress;
       task.status = 'In progress';
-      console.log(listName);
     } else if (listName === 'tasksDone') {
       destinationList = this.tasksDone;
       task.status = 'Done';
@@ -117,5 +116,10 @@ onClick(event: MouseEvent) {
         localStorage.setItem('tasksDone', JSON.stringify(this.tasksDone));
       }
     }
+  }
+
+  openModal(task: any) {
+    this.modal = !this.modal;
+    this.selectedTask = task;
   }
 }
