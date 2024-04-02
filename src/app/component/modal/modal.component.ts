@@ -11,8 +11,10 @@ import { FormsModule } from '@angular/forms';
 })
 export class ModalComponent implements OnInit{
 
+  public showOptions: boolean = false;
   public editable: boolean = false;
   public editedTaskText: string = '';
+  public selectedOption: string = 'Todo';
   @Input() visible: any;
   @Input() task: any;
 
@@ -36,16 +38,31 @@ export class ModalComponent implements OnInit{
 
   guardar() {
     console.log("guardar datos");
+    this.updateAndSaveTask();
+    this.editable = false;
+  }
+
+  toggleOptions() {
+    this.showOptions = !this.showOptions;
+  }
+
+  selectOption(option: string) {
+    this.showOptions = false;
+    this.selectedOption = option;
+    this.updateAndSaveTask();
+  }
+
+  private updateAndSaveTask() {
     const tasks: any[] = JSON.parse(localStorage.getItem('tasks') || '[]');
     const index = tasks.findIndex(t => t.id === this.task.id);
 
-    console.log(index);
     if(index !== -1) {
       this.task.text = this.editedTaskText;
+      this.task.status = this.selectedOption;
       console.log(this.task);
       tasks[index] = this.task;
       localStorage.setItem('tasks', JSON.stringify(tasks));
     }
-    this.editable = false;
   }
+
 }
