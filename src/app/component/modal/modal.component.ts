@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DataService } from '../../service/data.service';
 
 @Component({
   selector: 'app-modal',
@@ -17,18 +18,21 @@ export class ModalComponent implements OnInit{
   public selectedOption: string = 'Todo';
   @Input() visible: any;
   @Input() task: any;
+  @Output() closeModal: EventEmitter<void> = new EventEmitter<void>();
 
-  constructor() {}
+  constructor(private _dataService: DataService) {}
   ngOnInit(): void {
     this.editedTaskText = this.task.text;
+    console.log(this.visible);
   }
+  
   editar() {
     this.editable = !this.editable;
     this.editedTaskText = this.task.text;
   }
 
   close() {
-    this.visible = false;
+    this.visible = !this.visible;
   }
   
   cancelar() {
@@ -53,16 +57,16 @@ export class ModalComponent implements OnInit{
   }
 
   private updateAndSaveTask() {
-    const tasks: any[] = JSON.parse(localStorage.getItem('tasks') || '[]');
-    const index = tasks.findIndex(t => t.id === this.task.id);
-
-    if(index !== -1) {
-      this.task.text = this.editedTaskText;
-      this.task.status = this.selectedOption;
-      console.log(this.task);
-      tasks[index] = this.task;
-      localStorage.setItem('tasks', JSON.stringify(tasks));
+    
+    const newData = {
+      ...this.task,
+      text: this.editedTaskText,
+      status: this.selectedOption
     }
+
+    this.task.status = this.selectedOption;
+
+    this._dataService.updateData(newData);
   }
 
 }

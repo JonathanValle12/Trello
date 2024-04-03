@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { v4 as uuidv4 } from 'uuid';
 import { ModalComponent } from '../../modal/modal.component';
+import { DataService } from '../../../service/data.service';
 
 @Component({
   selector: 'app-board',
@@ -22,11 +23,14 @@ export class BoardComponent implements OnInit {
   public tasksDone: any[] = [];
   public inputValue: string = '';
   public status: string = '';
-  public modal: any = false;
+  public modal: boolean = false;
   public selectedTask: any;
   public selectedTaskId: string | null = null;
 
-  constructor(private elementRef: ElementRef) { }
+  constructor(
+    private elementRef: ElementRef,
+    private _dataService: DataService
+    ) { }
   
   ngOnInit(): void {
     this.loadTasksFromLocalStorage();
@@ -50,11 +54,13 @@ export class BoardComponent implements OnInit {
   }
 
   loadTasksFromLocalStorage(): void {
-    const storedTasks: any[] = JSON.parse(localStorage.getItem('tasks') || '[]');
 
-    this.tasksToDo = storedTasks.filter(task => task.status === 'Todo');
-    this.tasksInProgress = storedTasks.filter(task => task.status === 'In Progress');
-    this.tasksDone = storedTasks.filter(task => task.status === 'Done');
+    this._dataService.data$.subscribe(data => {
+      this.tasksToDo = data.filter(task => task.status === 'Todo');
+      this.tasksInProgress = data.filter(task => task.status === 'In Progress');
+      this.tasksDone = data.filter(task => task.status === 'Done');
+    });
+
   }
 
   @HostListener('window:keydown.enter', ['$event'])
@@ -73,13 +79,7 @@ export class BoardComponent implements OnInit {
         status: this.status
       }
 
-      let tasks: any[] = JSON.parse(localStorage.getItem('tasks') || '[]');
-
-      tasks.push(newTask);
-
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-
-      this.loadTasksFromLocalStorage();
+      this._dataService.addData(newTask);
       this.inputValue = '';
     }
   }
@@ -120,44 +120,18 @@ export class BoardComponent implements OnInit {
       destinationList = this.tasksDone;
       task.status = 'Done';
     }
-
-    // Mover el elemento en la lista de destino
-    if (destinationList) {
-      transferArrayItem(
-        event.previousContainer.data,
-        destinationList,
-        event.previousIndex,
-        event.currentIndex
-      );
-
-      // Actualizar solo la lista de destino en el almacenamiento local
-      if (listName === 'Todo') {
-        localStorage.setItem('tasksToDo', JSON.stringify(this.tasksToDo));
-      } else if (listName === 'in-progress') {
-        localStorage.setItem('tasksInProgress', JSON.stringify(this.tasksInProgress));
-      } else if (listName === 'done') {
-        localStorage.setItem('tasksDone', JSON.stringify(this.tasksDone));
-      }
-    }
   }
 
   openModal(task: any) {
     this.modal = !this.modal;
     this.selectedTask = task;
+    this.selectedTaskId = null;
+
+    console.log(this.modal);
   }
+
   deleteTask(task: any) {
-    console.log(task);
-
-    let tasks: any[] = JSON.parse(localStorage.getItem('tasks') || '[]');
-
-    const index = tasks.findIndex(t => t.id === task.id);
-
-    if (index !== -1) {
-      tasks.splice(index, 1);
-
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-
-      this.loadTasksFromLocalStorage();
-    }
+    this.modal = false;
+   this._dataService.deleteTask(task);
   }
 }

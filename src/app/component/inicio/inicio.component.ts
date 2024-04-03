@@ -3,6 +3,7 @@ import { HeaderComponent } from '../header/header.component';
 import { CommonModule } from '@angular/common';
 import { TableComponent } from '../layout/table/table.component';
 import { BoardComponent } from '../layout/board/board.component';
+import { DataService } from '../../service/data.service';
 
 @Component({
   selector: 'app-inicio',
@@ -14,11 +15,26 @@ import { BoardComponent } from '../layout/board/board.component';
 
 export class InicioComponent {
 
-  public selectLayout: string = 'Board';
-  constructor() { }
+  public selectLayout: string = 'Table';
+  public showModal = false;
+
+  constructor(private _dataService: DataService) { }
 
   cambioLayout(layout: string) {
     this.selectLayout = layout;
   }
 
+  openModal() {
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+  }
+
+  confirmDelete() {
+    this.closeModal();
+    this._dataService.deleteAllData();
+
+  }
 }
