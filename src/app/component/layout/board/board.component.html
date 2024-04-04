@@ -1,5 +1,5 @@
-<section class="flex flex-wrap mt-4 min-h-0" style="height: 70vh">
-    <article class="flex-grow bg-white h-full mr-10 relative overflow-hidden mb-10" id="todo">
+<section class="flex mt-4 min-h-0" style="height: 70vh;">
+    <article class="flex-shrink w-full bg-white h-full mr-10 relative overflow-hidden mb-10" id="todo">
         <header class="flex items-center gap-3 ml-5 mt-5">
             <span class="bg-green-900 h-5 w-5 rounded-full"></span>
             <h2 class="text-2xl font-bold ">Todo</h2>
@@ -37,7 +37,7 @@
         </footer>
     </article>
 
-    <article class="flex-grow bg-white mr-10 h-full overflow-hidden relative mb-10" id="in-progress">
+    <article class="flex-shrink w-full bg-white mr-10 h-full overflow-hidden relative mb-10" id="in-progress">
         <header class="flex items-center gap-3 ml-5 mt-5">
             <span class="bg-yellow-700 h-5 w-5 rounded-full"></span>
             <h2 class="text-2xl font-bold ">In progress</h2>
@@ -50,7 +50,7 @@
                 <div class="border border-gray-100 shadow-lg w-full h-24 p-5 mt-5 relative" cdkDrag>
                     <div class="flex justify-between">
                         <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
-                        <div class="relative z-1">
+                        <div class="relative z-10">
                             <i class="fas fa-ellipsis-v cursor-pointer text-gray-600 hover:text-gray-800" (click)="openMenu(task.id)"></i>
                             <div *ngIf="selectedTaskId === task.id" class="absolute right-0 mt-2 bg-white border border-gray-300 shadow-md rounded-md">
                                 <ul class="py-2">
@@ -75,7 +75,7 @@
         </footer>
     </article>
 
-    <article class="flex-grow bg-white mr-10 h-full overflow-hidden relative mb-10" id="done">
+    <article class="flex-shrink w-full bg-white mr-10 h-full overflow-hidden relative mb-10" id="done">
         <header class="flex items-center gap-3 ml-5 mt-5">
             <span class="bg-purple-700 h-5 w-5 rounded-full"></span>
             <h2 class="text-2xl font-bold ">Done</h2>
@@ -116,7 +116,7 @@
 </section>
 
 <input *ngIf="addInputDone || addInputToDo || addInputInProgress"
-    class="w-11/12 text-white bg-gray-900 absolute bottom-10 p-3 rounded-md input-class"
+    class="w-full  text-white p-3 border-blue-600 border-2  bg-gray-800 rounded-md input-class"
     placeholder="Puedes usar para agregar un artículo" [(ngModel)]="inputValue" />
 
 <div *ngIf="modal">

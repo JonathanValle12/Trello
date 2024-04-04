@@ -14,3 +14,9 @@
 .custom-scrollbar:hover::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.2); /* color del pulgar de la barra de desplazamiento al pasar el mouse sobre ella */
 }
+
+.input-class {
+    position: absolute;
+    bottom: -60px;
+    left: -25px;
+}

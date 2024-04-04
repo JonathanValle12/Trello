@@ -15,7 +15,7 @@ import { DataService } from '../../service/data.service';
 
 export class InicioComponent {
 
-  public selectLayout: string = 'Table';
+  public selectLayout: string = 'Board';
   public showModal = false;
 
   constructor(private _dataService: DataService) { }

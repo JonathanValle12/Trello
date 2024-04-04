@@ -1,6 +1,6 @@
 <div class="mt-5 mr-12">
-    <input type="search" name="buscador"
-        class="w-full rounded-md py-2 px-4 border bg-gray-700 border-gray-300 focus:outline-none focus:border-indigo-500"
+    <input [(ngModel)]="filtrarClave" type="search" name="buscador"
+        class="w-full rounded-md py-2 px-4 border text-white bg-gray-700 border-gray-300 focus:outline-none focus:border-indigo-500"
         placeholder="Filtrar por palabra clave o campo" />
 
     <div class="overflow-x-auto mt-4">
@@ -14,19 +14,20 @@
                 </tr>
             </thead>
             <tbody>
-                <ng-container *ngFor="let task of tasks">
+                <ng-container *ngFor="let task of filtrarDatos(); let i = index">
                     <tr class="bg-gray-700 text-white">
-                        <td class="border-b border-gray-600 text-center">1</td>
+                        <td class="border-b border-gray-600 text-center">{{i + 1}}</td>
                         <td class="text-left text-sm border-r border-b border-gray-600">
                             <div class="flex items-center">
                                 <input class="w-full bg-transparent py-1 outline-none" type="text"
                                     [disabled]="editingTaskId !== task.id"
                                     [ngClass]="{'text-white border bg-gray-700 rounded' : editingTaskId === task.id}"
-                                    [(ngModel)]="task.text" (focus)="inputValue = task.text"
-                                    (ngModelChange)="inputValue = $event" />
+                                    [(ngModel)]="editionIndex === i ? inputValue : task.text" 
+                                    (focus)="inputValue = task.text"
+                                    (ngModelChange)="editionIndex === i && (inputValue = $event)" />
                                 <i *ngIf="editingTaskId !== task.id"
                                     class="mx-5 cursor-pointer hover:text-blue-300 fas fa-pencil-alt"
-                                    (click)="enableInput(task)"></i>
+                                    (click)="enableInput(task, i)"></i>
                                 <div *ngIf="editingTaskId === task.id" class="flex items-center gap-3 mr-2 ml-2">
                                     <i class="cursor-pointer hover:text-blue-300 fas fa-times fa-lg"
                                         (click)="cancelar(task)"></i>
@@ -36,7 +37,7 @@
                             </div>
                         </td>
                         <td class="px-2 py-3 border-b border-gray-600">
-                            <select [(ngModel)]="task.status" (ngModelChange)="opcionSeleccionada = $event" (change)="selectOption()" class="w-full bg-transparent">
+                            <select [(ngModel)]="task.status" (ngModelChange)="opcionSeleccionada = $event" (change)="actualizarStatus(task)" class="w-full bg-transparent">
                                 <option [value]="task.status" selected hidden>{{task.status}}</option>
                                 <option class="text-black" value="Todo">Todo</option>
                                 <option class="text-black" value="In Progress">In Progress</option>

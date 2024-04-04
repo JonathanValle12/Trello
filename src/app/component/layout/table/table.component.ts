@@ -16,6 +16,9 @@ export class TableComponent implements OnInit {
   public editingTaskId: any = null;
   public inputValue: string = '';
   public opcionSeleccionada: string = '';
+  public filtrarClave: string = '';
+  public originalValue: string = '';
+  public editionIndex: number | null = null;
 
   constructor(private _dataService: DataService) {}
 
@@ -26,33 +29,55 @@ export class TableComponent implements OnInit {
 
   }
 
-  enableInput(task: any): void {
+  enableInput(task: any, index: number): void {
+   
     if (this.editingTaskId === task.id) {
       this.editingTaskId = null;
+      this.inputValue = '';
     } else {
       this.editingTaskId = task.id;
       this.inputValue = task.text;
     }
+    
+    this.editionIndex = index;
   }
 
   cancelar(task: any): void {
     console.log(task);
     this.editingTaskId = null;
+    this.inputValue = this.originalValue;
+    this.editionIndex = null;
 
   }
 
-  selectOption() {
-    console.log(this.opcionSeleccionada);
+  actualizarStatus(task: any): void {
+    const newData = {
+      ...task,
+      status: this.opcionSeleccionada
+    }
+    this._dataService.updateData(newData);
   }
 
   editar(task: any): void {
+    task.originalValue = task.text;
 
       const newData = {
         ...task,
         text: this.inputValue,
+        status: task.status
       }
       this._dataService.updateData(newData);
 
       this.editingTaskId = null;
+      this.originalValue = '';
+      this.editionIndex = null;
+  }
+
+  filtrarDatos(): any[] {
+    if (this.filtrarClave.trim() === '') {
+      return this.tasks;
+    }else {
+      return this.tasks.filter(task => task.text.toLowerCase().includes(this.filtrarClave.trim().toLowerCase()));
+    }
   }
 }
