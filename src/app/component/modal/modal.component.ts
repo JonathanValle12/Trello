@@ -32,7 +32,7 @@ export class ModalComponent implements OnInit{
   }
 
   close() {
-    this.visible = !this.visible;
+    this.visible = false;
   }
   
   cancelar() {

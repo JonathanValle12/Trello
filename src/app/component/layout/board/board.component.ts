@@ -123,7 +123,9 @@ export class BoardComponent implements OnInit {
   }
 
   openModal(task: any) {
+    console.log(this.modal);
     this.modal = !this.modal;
+
     this.selectedTask = task;
     this.selectedTaskId = null;
 

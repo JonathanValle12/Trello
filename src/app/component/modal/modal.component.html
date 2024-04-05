@@ -1,6 +1,6 @@
 <div *ngIf="visible"
     class="bg-gray-800 h-4/6 xl:w-4/12 lg:w-7/12 md:w-11/12 absolute top-24 xl:left-1/3 lg:left-1/4 z-20 text-white">
-    <div class="border bottom-2 border-gray-600">
+    <div class="border bottom-2 border-gray-600 relative">
         <header class="flex flex-row justify-between items-center mt-8">
             <div class="flex flex-wrap w-full mx-6">
                 <input class="bg-transparent focus:outline-none w-full" type="text" value={{task.text}}
@@ -25,6 +25,8 @@
             <i class="far fa-clock mr-2 text-gray-400"></i>
             <span class="text-gray-400">{{task.createdDate}}</span>
         </div>
+        
+        <i class="fas fa-close absolute top-3 right-2 cursor-pointer" (click)="close()"></i>
     </div>
     <main class="m-4 flex gap-5">
         <p class="mb-2">Status</p>

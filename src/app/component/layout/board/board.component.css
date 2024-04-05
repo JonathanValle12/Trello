@@ -16,7 +16,7 @@
 }
 
 .input-class {
-    position: absolute;
-    bottom: -60px;
-    left: -25px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
 }

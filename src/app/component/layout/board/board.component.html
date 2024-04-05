@@ -1,5 +1,5 @@
-<section class="flex mt-4 min-h-0" style="height: 70vh;">
-    <article class="flex-shrink w-full bg-white h-full mr-10 relative overflow-hidden mb-10" id="todo">
+<section class="flex flex-wrap lg:flex-nowrap mt-4 min-h-0" style="height: 70vh;">
+    <article class="flex-grow w-full bg-white h-full mr-10 relative overflow-hidden mb-10" id="todo">
         <header class="flex items-center gap-3 ml-5 mt-5">
             <span class="bg-green-900 h-5 w-5 rounded-full"></span>
             <h2 class="text-2xl font-bold ">Todo</h2>
@@ -37,7 +37,7 @@
         </footer>
     </article>
 
-    <article class="flex-shrink w-full bg-white mr-10 h-full overflow-hidden relative mb-10" id="in-progress">
+    <article class="flex-grow w-full bg-white mr-10 h-full overflow-hidden relative mb-10" id="in-progress">
         <header class="flex items-center gap-3 ml-5 mt-5">
             <span class="bg-yellow-700 h-5 w-5 rounded-full"></span>
             <h2 class="text-2xl font-bold ">In progress</h2>
@@ -75,7 +75,7 @@
         </footer>
     </article>
 
-    <article class="flex-shrink w-full bg-white mr-10 h-full overflow-hidden relative mb-10" id="done">
+    <article class="flex-grow w-full bg-white mr-10 h-full overflow-hidden relative mb-10" id="done">
         <header class="flex items-center gap-3 ml-5 mt-5">
             <span class="bg-purple-700 h-5 w-5 rounded-full"></span>
             <h2 class="text-2xl font-bold ">Done</h2>
@@ -117,7 +117,7 @@
 
 <input *ngIf="addInputDone || addInputToDo || addInputInProgress"
     class="w-full  text-white p-3 border-blue-600 border-2  bg-gray-800 rounded-md input-class"
-    placeholder="Puedes usar para agregar un artículo" [(ngModel)]="inputValue" />
+    placeholder="Puedes usar para agregar un artículo en {{status}}" [(ngModel)]="inputValue" />
 
 <div *ngIf="modal">
     <app-modal [task]="selectedTask" [visible]="modal" ></app-modal>
