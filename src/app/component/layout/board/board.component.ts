@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
-import { CdkDragDrop, DragDropModule, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { v4 as uuidv4 } from 'uuid';
@@ -106,21 +106,52 @@ export class BoardComponent implements OnInit {
   }
 
   onTaskDrop(event: CdkDragDrop<any[]>, listName: string) {
-    const task = event.item.data;
-
+    const task: any = event.item.data;
+  
+    console.log(listName);
     // Determinar la lista de destino según el id del contenedor
     let destinationList: any[] = [];
+    let newStatus: string = '';
+  
     if (listName === 'tasksToDo') {
       destinationList = this.tasksToDo;
-      task.status = 'Todo';
+      newStatus = 'Todo';
     } else if (listName === 'tasksInProgress') {
       destinationList = this.tasksInProgress;
-      task.status = 'In progress';
+      newStatus = 'In progress';
     } else if (listName === 'tasksDone') {
       destinationList = this.tasksDone;
-      task.status = 'Done';
+      newStatus = 'Done';
     }
+  
+    // Verificar si la tarea se mueve a una lista diferente
+    if (event.previousContainer !== event.container) {
+      // Cambiar el estado de la tarea
+      task.status = newStatus;
+      console.log("hola"); // Comprobar si esta línea se imprime en la consola
+    }
+  
+    // Mover la tarea dentro de la lista de destino
+    if (event.previousContainer === event.container) {
+      moveItemInArray(
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        destinationList,
+        event.previousIndex,
+        event.currentIndex
+      );
+    }
+  
+    // Actualizar las tareas en el servicio o en cualquier almacenamiento de datos que estés utilizando
+    this._dataService.updateData([...this.tasksToDo, ...this.tasksInProgress, ...this.tasksDone]);
   }
+  
+  
 
   openModal(task: any) {
     console.log(this.modal);
