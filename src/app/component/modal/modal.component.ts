@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DataService } from '../../service/data.service';
 
 export type Status = 'Todo' | 'In Progress' | 'Done';
-export interface Task { id: string; text: string; status: Status};
+export interface Task { id: string; text: string; status: Status | string; }
 
 @Component({
   selector: 'app-modal',
@@ -16,7 +16,7 @@ export interface Task { id: string; text: string; status: Status};
 export class ModalComponent implements OnChanges {
 
   @Input() visible = false
-  @Input() task!: { id: string; text: string; status: Status}
+  @Input() task!: Task;
   @Output() closeModal = new EventEmitter<void>();
   @Output() save = new EventEmitter<Task>(); 
 
