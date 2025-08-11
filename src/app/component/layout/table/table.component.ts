@@ -1,83 +1,96 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { DataService } from '../../../service/data.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+type Status = 'Todo' | 'In Progress' | 'Done';
 
 @Component({
   selector: 'app-table',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './table.component.html',
-  styleUrl: './table.component.css'
+  styleUrls: ['./table.component.css']
 })
 export class TableComponent implements OnInit {
 
-  public tasks: any[] = [];
-  public editingTaskId: any = null;
-  public inputValue: string = '';
-  public opcionSeleccionada: string = '';
-  public filtrarClave: string = '';
-  public originalValue: string = '';
-  public editionIndex: number | null = null;
+  tasks: any[] = [];
+
+  // edición inline
+  editingTaskId: string | null = null;
+  inputValue = '';
+  editionIndex: number | null = null;
+
+  // búsqueda
+  filtrarClave = '';
+
+  // menús
+  openActionsForId: string | null = null;
+  openStatusForId: string | null = null;
 
   constructor(private _dataService: DataService) {}
 
   ngOnInit(): void {
-    this._dataService.data$.subscribe(data => {
-      this.tasks = data;
-    })
-
+    this._dataService.data$.subscribe(data => this.tasks = data);
   }
 
+  // ---------- edición ----------
   enableInput(task: any, index: number): void {
-   
-    if (this.editingTaskId === task.id) {
-      this.editingTaskId = null;
-      this.inputValue = '';
-    } else {
-      this.editingTaskId = task.id;
-      this.inputValue = task.text;
-    }
-    
+    this.editingTaskId = task.id;
+    this.inputValue = task.text;
     this.editionIndex = index;
   }
 
-  cancelar(task: any): void {
-    console.log(task);
+  cancelar(_: any): void {
     this.editingTaskId = null;
-    this.inputValue = this.originalValue;
+    this.inputValue = '';
     this.editionIndex = null;
-
-  }
-
-  actualizarStatus(task: any): void {
-    const newData = {
-      ...task,
-      status: this.opcionSeleccionada
-    }
-    this._dataService.updateData(newData);
   }
 
   editar(task: any): void {
-    task.originalValue = task.text;
-
-      const newData = {
-        ...task,
-        text: this.inputValue,
-        status: task.status
-      }
-      this._dataService.updateData(newData);
-
-      this.editingTaskId = null;
-      this.originalValue = '';
-      this.editionIndex = null;
+    const text = this.inputValue.trim();
+    if (!text) return;
+    this._dataService.updateData({ ...task, text });
+    this.cancelar(task);
   }
 
+  // ---------- estado ----------
+  toggleStatusMenu(id: string, e: MouseEvent) {
+    e.stopPropagation();
+    this.openStatusForId = this.openStatusForId === id ? null : id;
+    this.openActionsForId = null;
+  }
+
+  updateStatus(task: any, status: Status) {
+    this._dataService.updateData({ ...task, status });
+    this.openStatusForId = null;
+  }
+
+  // ---------- acciones ----------
+  toggleActionsMenu(id: string, e: MouseEvent) {
+    e.stopPropagation();
+    this.openActionsForId = this.openActionsForId === id ? null : id;
+    this.openStatusForId = null;
+  }
+
+  deleteTask(task: any) {
+    this._dataService.deleteTask(task);
+    this.closeMenus();
+  }
+
+  closeMenus() {
+    this.openActionsForId = null;
+    this.openStatusForId = null;
+  }
+
+  // Cerrar menús al clicar fuera
+  @HostListener('document:click') onDocClick() {
+    this.closeMenus();
+  }
+
+  // ---------- filtro ----------
   filtrarDatos(): any[] {
-    if (this.filtrarClave.trim() === '') {
-      return this.tasks;
-    }else {
-      return this.tasks.filter(task => task.text.toLowerCase().includes(this.filtrarClave.trim().toLowerCase()));
-    }
+    const q = this.filtrarClave.trim().toLowerCase();
+    return q ? this.tasks.filter(t => t.text?.toLowerCase().includes(q)) : this.tasks;
   }
-}
+};

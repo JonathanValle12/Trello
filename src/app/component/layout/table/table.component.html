@@ -1,52 +1,146 @@
-<div class="mt-5 mr-12">
-    <input [(ngModel)]="filtrarClave" type="search" name="buscador"
-        class="w-full rounded-md py-2 px-4 border text-white bg-gray-900 border-gray-500 focus:outline-none focus:border-indigo-500"
-        placeholder="Buscar por título" />
+<div class="mt-6 px-2 sm:px-3 md:px-4">
+  <!-- Header + buscador -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Todas las Tareas</h2>
 
-    <div class="overflow-x-auto mt-4">
-        <table class="min-w-full bg-gray-900 text-white border border-gray-800 shadow-md rounded-lg">
-            <thead>
-                <tr
-                    class="text-sm text-gray-300 font-semibold tracking-wide text-left uppercase border-b border-gray-600">
-                    <th></th>
-                    <th class="border-r border-gray-600">Título</th>
-                    <th class="px-4 py-3">Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                <ng-container *ngFor="let task of filtrarDatos(); let i = index">
-                    <tr class="bg-gray-800">
-                        <td class="border-b border-gray-600 text-center pr-4 md:pr-0">{{i + 1}}</td>
-                        <td class="text-left text-sm border-r border-b border-gray-600">
-                            <div class="flex items-center">
-                                <input class="w-full bg-transparent py-1 outline-none text-white" type="text"
-                                    [disabled]="editingTaskId !== task.id"
-                                    [ngClass]="{'border bg-gray-900 rounded' : editingTaskId === task.id}"
-                                    [(ngModel)]="editionIndex === i ? inputValue : task.text" 
-                                    (focus)="inputValue = task.text"
-                                    (ngModelChange)="editionIndex === i && (inputValue = $event)" />
-                                <i *ngIf="editingTaskId !== task.id"
-                                    class="mx-5 cursor-pointer hover:text-blue-400 fas fa-pencil-alt"
-                                    (click)="enableInput(task, i)"></i>
-                                <div *ngIf="editingTaskId === task.id" class="flex items-center gap-3 mr-2 ml-2">
-                                    <i class="cursor-pointer hover:text-blue-400 fas fa-times fa-lg"
-                                        (click)="cancelar(task)"></i>
-                                    <i class="cursor-pointer hover:text-blue-400 fas fa-check fa-lg"
-                                        (click)="editar(task)"></i>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-2 py-3 border-b border-gray-600">
-                            <select [(ngModel)]="task.status" (ngModelChange)="opcionSeleccionada = $event" (change)="actualizarStatus(task)" class="w-full bg-transparent text-white">
-                                <option [value]="task.status" selected hidden>{{task.status}}</option>
-                                <option class="text-black" value="Todo">Todo</option>
-                                <option class="text-black" value="In Progress">In Progress</option>
-                                <option class="text-black" value="Done">Done</option>
-                            </select>
-                        </td>
-                    </tr>
-                </ng-container>
-            </tbody>
-        </table>
+    <div class="w-full xs:w-64 sm:w-72 md:w-80">
+      <input
+        [(ngModel)]="filtrarClave"
+        type="search"
+        name="buscador"
+        class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800
+               placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
+        placeholder="Buscar por título" />
     </div>
+  </div>
+
+  <!-- Card tabla -->
+  <div class="bg-white rounded-2xl ring-1 ring-black/5 shadow-sm">
+    <table class="w-full table-fixed">
+      <!-- Fuerza de anchos para acercar Estado y separar Acciones del borde -->
+      <colgroup>
+        <col class="w-12 sm:w-14" />
+        <col class="w-[56%]" />
+        <col class="w-[26%] sm:w-[24%]" />
+        <col class="w-[18%]" />
+      </colgroup>
+
+      <thead class="bg-slate-50">
+        <tr class="text-left text-slate-500 text-sm">
+          <th class="px-3 sm:px-4 py-3 font-semibold">#</th>
+          <th class="px-3 sm:px-4 py-3 font-semibold">Tarea</th>
+          <th class="px-3 sm:px-4 py-3 font-semibold">Estado</th>
+          <th class="px-3 sm:px-4 pr-6 md:pr-10 py-3 font-semibold text-center">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-slate-100">
+        <ng-container *ngFor="let task of filtrarDatos(); let i = index">
+          <tr class="align-top hover:bg-slate-50/60 transition-colors">
+            <!-- # -->
+            <td class="px-3 sm:px-4 py-4 text-slate-500">{{ i + 1 }}</td>
+
+            <!-- Tarea -->
+            <td class="px-3 sm:px-4 py-3">
+              <div class="flex items-start gap-3">
+                <div class="flex-1">
+                  <p *ngIf="editingTaskId !== task.id; else editingField"
+                     class="text-slate-800"
+                     [ngClass]="{ 'line-through text-slate-400' : task.status === 'Done' }">
+                    {{ task.text }}
+                  </p>
+
+                  <ng-template #editingField>
+                    <input
+                      [(ngModel)]="inputValue"
+                      type="text"
+                      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900
+                             focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600" />
+                  </ng-template>
+                </div>
+
+                <div *ngIf="editingTaskId === task.id" class="flex items-center gap-2">
+                  <button class="p-2 rounded-md hover:bg-slate-100" (click)="cancelar(task)" aria-label="Cancelar">
+                    <i class="fas fa-times text-slate-500"></i>
+                  </button>
+                  <button class="p-2 rounded-md hover:bg-slate-100" (click)="editar(task)" aria-label="Guardar">
+                    <i class="fas fa-check text-teal-600"></i>
+                  </button>
+                </div>
+              </div>
+            </td>
+
+            <!-- Estado -->
+            <td class="px-3 sm:px-4 py-3">
+              <div class="relative inline-block">
+                <button
+                  type="button"
+                  class="inline-flex w-40 sm:w-44 items-center justify-between gap-3 rounded-lg border border-slate-300
+                         px-3 py-2 text-sm text-slate-800 hover:bg-slate-50"
+                  (click)="toggleStatusMenu(task.id, $event)">
+                  <span class="inline-flex items-center gap-2">
+                    <span class="h-2.5 w-2.5 rounded-full"
+                          [ngClass]="{
+                            'bg-sky-500': task.status === 'Todo',
+                            'bg-amber-500': task.status === 'In Progress',
+                            'bg-emerald-500': task.status === 'Done'
+                          }"></span>
+                    {{ task.status === 'In Progress' ? 'En progreso' : (task.status === 'Done' ? 'Completado' : 'Todo') }}
+                  </span>
+                  <i class="fas fa-chevron-down text-slate-400"></i>
+                </button>
+
+                <div
+                  *ngIf="openStatusForId === task.id"
+                  class="absolute z-20 mt-2 w-44 rounded-lg border border-slate-200 bg-white shadow-lg overflow-hidden"
+                  (click)="$event.stopPropagation()">
+                  <button class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                          (click)="updateStatus(task, 'Todo')">
+                    <span class="h-2.5 w-2.5 rounded-full bg-sky-500"></span> Todo
+                  </button>
+                  <button class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                          (click)="updateStatus(task, 'In Progress')">
+                    <span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span> En progreso
+                  </button>
+                  <button class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                          (click)="updateStatus(task, 'Done')">
+                    <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span> Completado
+                  </button>
+                </div>
+              </div>
+            </td>
+
+            <!-- Acciones -->
+            <td class="px-3 sm:px-4 pr-6 md:pr-10 py-3 text-center">
+              <div class="relative inline-block">
+                <button
+                  class="p-2 rounded-md hover:bg-slate-100"
+                  (click)="toggleActionsMenu(task.id, $event)"
+                  aria-label="Abrir menú">
+                  <i class="fas fa-ellipsis-h text-slate-500"></i>
+                </button>
+
+                <div
+                  *ngIf="openActionsForId === task.id"
+                  class="absolute right-2 z-20 mt-2 w-40 rounded-xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden"
+                  (click)="$event.stopPropagation()">
+                  <button
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                    (click)="enableInput(task, i); closeMenus()">
+                    <i class="far fa-edit text-slate-500"></i> <span>Editar</span>
+                  </button>
+                  <div class="h-px bg-slate-100"></div>
+                  <button
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                    (click)="deleteTask(task)">
+                    <i class="far fa-trash-alt"></i> <span>Eliminar</span>
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
 </div>

@@ -15,14 +15,10 @@ import { DataService } from '../../service/data.service';
 
 export class InicioComponent {
 
-  public selectLayout: string = 'Board';
+  public selectLayout: 'Board' | 'Table' = 'Board';
   public showModal = false;
 
   constructor(private _dataService: DataService) { }
-
-  cambioLayout(layout: string) {
-    this.selectLayout = layout;
-  }
 
   openModal() {
     this.showModal = true;

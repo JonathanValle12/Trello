@@ -31,15 +31,20 @@ export class DataService {
     this.saveData(updateDate);
    }
 
-   updateData(updatedTask: any): void {
-    const currentData = this.dataSubject.value;
-    const index = currentData.findIndex(task => task.id === updatedTask.id);
+   updateData(updated: any | any[]): void {
+    if (Array.isArray(updated)) {
+      this.saveData(updated);
+      return;
+    }
+
+    const currentData = [...this.dataSubject.value];
+    const index = currentData.findIndex(task => task.id === updated.id);
 
     if (index !== -1) {
-      currentData[index] = updatedTask;
+      currentData[index] = { ...currentData[index], ...updated };
       this.saveData(currentData);
     }
-   }
+  }
 
    deleteAllData(): void {
     localStorage.removeItem(this.dataKey);

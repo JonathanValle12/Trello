@@ -6,6 +6,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { ModalComponent } from '../../modal/modal.component';
 import { DataService } from '../../../service/data.service';
 
+enum Status {
+  TODO = 'Todo',
+  IN_PROGRESS = 'In Progress',
+  DONE = 'Done'
+}
+
 @Component({
   selector: 'app-board',
   standalone: true,
@@ -15,156 +21,124 @@ import { DataService } from '../../../service/data.service';
 })
 export class BoardComponent implements OnInit {
 
-  public addInputToDo: any = false;
-  public addInputInProgress: any = false;
-  public addInputDone: any = false;
   public tasksToDo: any[] = [];
   public tasksInProgress: any[] = [];
-  public tasksDone: any[] = [];
-  public inputValue: string = '';
-  public status: string = '';
-  public modal: boolean = false;
-  public selectedTask: any;
+  public taskDone: any[] = [];
+
   public selectedTaskId: string | null = null;
+
+  public modal = false;
+  public selectedTask: any;
+
+  public addingColumn: 'todo' | 'in-progress' | 'done' | null = null;
+  public newTitle = '';
 
   constructor(
     private elementRef: ElementRef,
     private _dataService: DataService
-    ) { }
-  
+  ) { }
+
   ngOnInit(): void {
-    this.loadTasksFromLocalStorage();
+    this._dataService.data$.subscribe(data => {
+      this.tasksToDo = data.filter(t => t.status === Status.TODO);
+      this.tasksInProgress = data.filter(t => t.status === Status.IN_PROGRESS);
+      this.taskDone = data.filter(t => t.status === Status.DONE);
+    })
   }
 
-  openMenu(taskId: any): any {
+  openMenu(taskId: string, e?: MouseEvent) {
+    if (e) e.stopPropagation();
     this.selectedTaskId = this.selectedTaskId === taskId ? null : taskId;
   }
+  closeMenu() { this.selectedTaskId = null; }
 
-  addcard(column: string) {
-    if (column === 'todo') {
-      this.addInputToDo = !this.addInputToDo;
-      this.status = 'Todo';
-    } else if (column === 'in-progress') {
-      this.addInputInProgress = !this.addInputInProgress;
-      this.status = 'In Progress';
-    } else if (column === 'done') {
-      this.addInputDone = !this.addInputDone;
-      this.status = 'Done';
+  @HostListener('document:click', ['$event'])
+  onDocClick(ev: MouseEvent) {
+    const target = ev.target as HTMLElement;
+    const menu = this.elementRef.nativeElement.querySelector('.ctx-menu');
+    const btn = this.elementRef.nativeElement.querySelector('.ctx-btn');
+    if (menu && !menu.contains(target) && btn && !btn.contains(target)) {
+      this.closeMenu();
     }
   }
 
-  loadTasksFromLocalStorage(): void {
-
-    this._dataService.data$.subscribe(data => {
-      this.tasksToDo = data.filter(task => task.status === 'Todo');
-      this.tasksInProgress = data.filter(task => task.status === 'In Progress');
-      this.tasksDone = data.filter(task => task.status === 'Done');
-    });
-
+  startAdd(col: 'todo' | 'in-progress' | 'done') {
+    this.addingColumn = col;
+    this.newTitle = '';
   }
 
-  @HostListener('window:keydown.enter', ['$event'])
-  onEnter(event: KeyboardEvent) {
-    if ((this.addInputToDo || this.addInputInProgress || this.addInputDone) && this.inputValue.trim() !== '' && event.key === 'Enter') {
-      this.addInputToDo = false;
-      this.addInputInProgress = false;
-      this.addInputDone = false;
-
-      const taskId = uuidv4();
-
-      const newTask = {
-        id: taskId,
-        text: this.inputValue.trim(),
-        createdDate: new Date().toLocaleDateString('es-ES', { month: 'long', day: '2-digit' }),
-        status: this.status
-      }
-
-      this._dataService.addData(newTask);
-      this.inputValue = '';
-    }
+  cancelAdd() {
+    this.addingColumn = null;
+    this.newTitle = '';
   }
 
-  @HostListener('window:click', ['$event'])
-  onClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
+  addTask(col: 'todo' | 'in-progress' | 'done') {
+    const text = this.newTitle.trim();
+    if (!text) return;
 
-    // Verificar si los elementos existen antes de acceder a la propiedad 'contains'
-    const inputClassElement = this.elementRef.nativeElement.querySelector('.input-class');
-    const footerTodoElement = this.elementRef.nativeElement.querySelector('.footer-todo');
-    const footerInProgressElement = this.elementRef.nativeElement.querySelector('.footer-in-progress');
-    const footerDoneElement = this.elementRef.nativeElement.querySelector('.footer-done');
-    if (inputClassElement &&
-      footerTodoElement && footerInProgressElement && footerDoneElement &&
-      !inputClassElement.contains(target) &&
-      !footerTodoElement.contains(target) &&
-      !footerInProgressElement.contains(target) &&
-      !footerDoneElement.contains(target)) {
-      this.addInputToDo = false; // Ocultar el input
-      this.addInputInProgress = false;
-      this.addInputDone = false;
-    }
+    const statusMap = {
+      'todo': Status.TODO,
+      'in-progress': Status.IN_PROGRESS,
+      'done': Status.DONE
+    } as const;
+
+    const newTask = {
+      id: uuidv4(),
+      text,
+      createdDate: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long' }),
+      status: statusMap[col]
+    };
+
+    this._dataService.addData(newTask);
+    this.cancelAdd();
   }
 
-  onTaskDrop(event: CdkDragDrop<any[]>, listName: string) {
-    const task: any = event.item.data;
-  
-    console.log(listName);
-    // Determinar la lista de destino según el id del contenedor
-    let destinationList: any[] = [];
-    let newStatus: string = '';
-  
-    if (listName === 'tasksToDo') {
-      destinationList = this.tasksToDo;
-      newStatus = 'Todo';
-    } else if (listName === 'tasksInProgress') {
-      destinationList = this.tasksInProgress;
-      newStatus = 'In progress';
-    } else if (listName === 'tasksDone') {
-      destinationList = this.tasksDone;
-      newStatus = 'Done';
-    }
-  
-    // Verificar si la tarea se mueve a una lista diferente
+  onTaskDrop(event: CdkDragDrop<any[]>) {
+    const task = event.item.data;
+
     if (event.previousContainer !== event.container) {
-      // Cambiar el estado de la tarea
-      task.status = newStatus;
-      console.log("hola"); // Comprobar si esta línea se imprime en la consola
-    }
-  
-    // Mover la tarea dentro de la lista de destino
-    if (event.previousContainer === event.container) {
-      moveItemInArray(
+      const containerToStatus = new Map<any, Status>([
+        [this.tasksToDo, Status.TODO],
+        [this.tasksInProgress, Status.IN_PROGRESS],
+        [this.taskDone, Status.DONE],
+      ]);
+
+      const newStatus = containerToStatus.get(event.container.data);
+      if (newStatus) task.status = newStatus;
+
+      transferArrayItem(
+        event.previousContainer.data,
         event.container.data,
         event.previousIndex,
         event.currentIndex
       );
     } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        destinationList,
+      moveItemInArray(
+        event.container.data,
         event.previousIndex,
         event.currentIndex
       );
     }
-  
-    // Actualizar las tareas en el servicio o en cualquier almacenamiento de datos que estés utilizando
-    this._dataService.updateData([...this.tasksToDo, ...this.tasksInProgress, ...this.tasksDone]);
+
+    // Persistir
+    this._dataService.updateData([
+      ...this.tasksToDo,
+      ...this.tasksInProgress,
+      ...this.taskDone
+    ]);
   }
-  
-  
 
   openModal(task: any) {
-    console.log(this.modal);
     this.modal = !this.modal;
-
     this.selectedTask = task;
-    this.selectedTaskId = null;
-
-    console.log(this.modal);
+    this.closeMenu();
   }
 
   deleteTask(task: any) {
     this.modal = false;
-   this._dataService.deleteTask(task);
+    this._dataService.deleteTask(task);
+    this.closeMenu();
   }
+
+  trackById(_: number, t: any) { return t.id; }
 }

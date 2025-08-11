@@ -1,124 +1,277 @@
-<section class="flex flex-wrap lg:flex-nowrap mt-4 min-h-0" style="height: 70vh;">
-    <article class="flex-grow w-full bg-white h-full mr-10 relative overflow-hidden mb-10" id="todo">
-        <header class="flex items-center gap-3 ml-5 mt-5">
-            <span class="bg-green-900 h-5 w-5 rounded-full"></span>
-            <h2 class="text-2xl font-bold ">Todo</h2>
-            <span class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">{{tasksToDo.length}}</span>
-        </header>
-        <p class="ml-5 text-gray-500">Este artículo no se ha iniciado</p>
-        <main class="mx-4 h-full overflow-auto custom-scrollbar" cdkDropList [cdkDropListData]="tasksToDo"
-        (cdkDropListDropped)="onTaskDrop($event, 'tasksToDo')">
-            <ng-container *ngFor="let task of tasksToDo">
-                <div class="border border-gray-100 shadow-lg w-full h-24 p-5 mt-5 relative" [cdkDragData]="task" cdkDrag>
-                    <div class="flex justify-between">
-                        <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
-                        <div class="relative z-10">
-                            <i class="fas fa-ellipsis-v cursor-pointer text-gray-600 hover:text-gray-800" (click)="openMenu(task.id)"></i>
-                            <div *ngIf="selectedTaskId === task.id" class="absolute right-0 mt-2 bg-white border border-gray-300 shadow-md rounded-md">
-                                <ul class="py-2">
-                                    <li>
-                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="deleteTask(task)">Eliminar</a>
-                                    </li>
-                                    <li>
-                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="openModal(task)">Editar</a>
-                                    </li>
-                                </ul>
+<section class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
+
+    <article class="flex flex-col h-[70vh] rounded-2xl bg-white ring-1 ring-black/5 shadow-sm overflow-hidden">
+        <div class="px-5 pt-5 pb-3">
+            <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="h-2.5 w-2.5 rounded-full bg-sky-500"></span>
+                    <h2 class="text-lg font-bold text-slate-800">Todo</h2>
+                    <span class="text-slate-500 text-sm">({{ tasksToDo.length }})</span>
+                </div>
+                <button class="p-2 rounded hover:bg-slate-100">
+                    <i class="fas fa-ellipsis-v text-slate-500"></i>
+                </button>
+            </div>
+            <p class="text-slate-500 text-sm mt-1">Tareas pendientes por iniciar</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-5 pb-4 space-y-3" cdkDropList #todoList="cdkDropList"
+            [cdkDropListData]="tasksToDo" [cdkDropListConnectedTo]="[inProgressList, doneList]"
+            (cdkDropListDropped)="onTaskDrop($event)">
+
+            <ng-container *ngFor="let task of tasksToDo; trackBy: trackById">
+                <div class="group relative rounded-xl bg-white ring-1 ring-black/5 shadow-sm p-4 hover:shadow-md transition"
+                    cdkDrag [cdkDragData]="task">
+                    <div class="flex items-start justify-between gap-3">
+                        <p class="font-medium text-slate-800 cursor-pointer hover:underline" (click)="openModal(task)">
+                            {{ task.text }}
+                        </p>
+
+                        <div class="relative">
+                            <button class="ctx-btn p-1.5 rounded hover:bg-slate-100"
+                                (mousedown)="$event.stopPropagation()" (click)="openMenu(task.id, $event)">
+                                <i class="fas fa-ellipsis-h text-slate-500"></i>
+                            </button>
+
+                            <div *ngIf="selectedTaskId === task.id" class="ctx-menu absolute right-0 mt-2 z-20">
+                                <div class="rounded-xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden min-w-40">
+                                    <button class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                                        (click)="openModal(task)">
+                                        <i class="far fa-edit text-slate-500"></i><span>Editar</span>
+                                    </button>
+                                    <div class="h-px bg-slate-100"></div>
+                                    <button
+                                        class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                        (click)="deleteTask(task)">
+                                        <i class="far fa-trash-alt"></i><span>Eliminar</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i>
-                        {{task.createdDate}}</p>
+
+                    <p class="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                        <i class="far fa-clock"></i> {{ task.createdDate }}
+                    </p>
+
+                    <ng-template cdkDragPreview>
+                        <div class="rounded-xl ring-1 ring-black/5 shadow-lg bg-white p-4 transition-none">
+                            {{ task.text }}
+                        </div>
+                    </ng-template>
                 </div>
             </ng-container>
-        </main>
-        <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointe footer-todo"
-            (click)="addcard('todo')">
-            <h3 class="text-white"><i class="fas fa-plus"></i> Agregar tarea</h3>
-        </footer>
+        </div>
+
+        <ng-container *ngIf="addingColumn !== 'todo'; else addFormTodo">
+            <button
+                class="border-t px-5 py-4 text-teal-700 hover:text-teal-800 text-sm font-semibold flex items-center gap-2"
+                (click)="startAdd('todo')">
+                <span class="text-base">+</span> Agregar tarea
+            </button>
+        </ng-container>
+
+        <ng-template #addFormTodo>
+            <div class="border-t px-5 py-4">
+                <div class="rounded-2xl ring-1 ring-black/5 bg-white p-3 shadow-sm">
+                    <input [(ngModel)]="newTitle" (keyup.enter)="addTask('todo')" type="text"
+                        placeholder="Escribe el título de la nueva tarea..."
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-800
+                        placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500" />
+                    <div class="mt-3 flex items-center justify-end gap-2">
+                        <button
+                            class="rounded-lg px-4 py-2 text-sm font-semibold bg-teal-600 text-white hover:bg-teal-700"
+                            (click)="addTask('todo')">Añadir</button>
+                        <button class="p-2 rounded-lg hover:bg-slate-100" (click)="cancelAdd()" aria-label="Cancelar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
     </article>
 
-    <article class="flex-grow w-full bg-white mr-10 h-full overflow-hidden relative mb-10" id="in-progress">
-        <header class="flex items-center gap-3 ml-5 mt-5">
-            <span class="bg-yellow-700 h-5 w-5 rounded-full"></span>
-            <h2 class="text-2xl font-bold ">En progreso</h2>
-            <span class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">{{tasksInProgress.length}}</span>
-        </header>
-        <p class="ml-5 text-gray-500">Se esta trabajando activamente en esto</p>
-        <main class="mx-4 h-full overflow-auto custom-scrollbar pb-14" style="max-height: calc(68vh - 40px)" cdkDropList
-            [cdkDropListData]="tasksInProgress" (cdkDropListDropped)="onTaskDrop($event, 'tasksInProgress')">
-            <ng-container *ngFor="let task of tasksInProgress">
-                <div class="border border-gray-100 shadow-lg w-full h-24 p-5 mt-5 relative" [cdkDragData]="task" cdkDrag>
-                    <div class="flex justify-between">
-                        <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
-                        <div class="relative z-10">
-                            <i class="fas fa-ellipsis-v cursor-pointer text-gray-600 hover:text-gray-800" (click)="openMenu(task.id)"></i>
-                            <div *ngIf="selectedTaskId === task.id" class="absolute right-0 mt-2 bg-white border border-gray-300 shadow-md rounded-md">
-                                <ul class="py-2">
-                                    <li>
-                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="deleteTask(task)">Eliminar</a>
-                                    </li>
-                                    <li>
-                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="openModal(task)">Editar</a>
-                                    </li>
-                                </ul>
+    <article class="flex flex-col h-[70vh] rounded-2xl bg-white ring-1 ring-black/5 shadow-sm overflow-hidden">
+        <div class="px-5 pt-5 pb-3">
+            <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>
+                    <h2 class="text-lg font-bold text-slate-800">En progreso</h2>
+                    <span class="text-slate-500 text-sm">({{ tasksInProgress.length }})</span>
+                </div>
+                <button class="p-2 rounded hover:bg-slate-100">
+                    <i class="fas fa-ellipsis-v text-slate-500"></i>
+                </button>
+            </div>
+            <p class="text-slate-500 text-sm mt-1">Se está trabajando activamente en esto</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-5 pb-4 space-y-3" cdkDropList #inProgressList="cdkDropList"
+            [cdkDropListData]="tasksInProgress" [cdkDropListConnectedTo]="[todoList, doneList]"
+            (cdkDropListDropped)="onTaskDrop($event)">
+
+            <ng-container *ngFor="let task of tasksInProgress; trackBy: trackById">
+                <div class="group relative rounded-xl bg-white ring-1 ring-black/5 shadow-sm p-4 hover:shadow-md transition"
+                    cdkDrag [cdkDragData]="task">
+                    <div class="flex items-start justify-between gap-3">
+                        <p class="font-medium text-slate-800 cursor-pointer hover:underline" (click)="openModal(task)">
+                            {{ task.text }}</p>
+
+                        <div class="relative">
+                            <button class="ctx-btn p-1.5 rounded hover:bg-slate-100"
+                                (mousedown)="$event.stopPropagation()" (click)="openMenu(task.id, $event)">
+                                <i class="fas fa-ellipsis-h text-slate-500"></i>
+                            </button>
+
+                            <div *ngIf="selectedTaskId === task.id" class="ctx-menu absolute right-0 mt-2 z-20">
+                                <div class="rounded-xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden min-w-40">
+                                    <button class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                                        (click)="openModal(task)">
+                                        <i class="far fa-edit text-slate-500"></i><span>Editar</span>
+                                    </button>
+                                    <div class="h-px bg-slate-100"></div>
+                                    <button
+                                        class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                        (click)="deleteTask(task)">
+                                        <i class="far fa-trash-alt"></i><span>Eliminar</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i>
-                        {{task.createdDate}}</p>
+
+                    <p class="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                        <i class="far fa-clock"></i> {{ task.createdDate }}
+                    </p>
+
+                    <ng-template cdkDragPreview>
+                        <div class="rounded-xl ring-1 ring-black/5 shadow-lg bg-white p-4 transition-none">
+                            {{ task.text }}
+                        </div>
+                    </ng-template>
                 </div>
             </ng-container>
-        </main>
-        <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer footer-in-progress"
-            (click)="addcard('in-progress')">
-            <h3 class="text-white"><i class="fas fa-plus"></i> Agregar tarea</h3>
-        </footer>
+        </div>
+
+        <ng-container *ngIf="addingColumn !== 'in-progress'; else addFormInProgress">
+            <button
+                class="border-t px-5 py-4 text-teal-700 hover:text-teal-800 text-sm font-semibold flex items-center gap-2"
+                (click)="startAdd('in-progress')">
+                <span class="text-base">+</span> Agregar tarea
+            </button>
+        </ng-container>
+
+        <ng-template #addFormInProgress>
+            <div class="border-t px-5 py-4">
+                <div class="rounded-2xl ring-1 ring-black/5 bg-white p-3 shadow-sm">
+                    <input [(ngModel)]="newTitle" (keyup.enter)="addTask('in-progress')" type="text"
+                        placeholder="Escribe el título de la nueva tarea..."
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-800
+                        placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500" />
+                    <div class="mt-3 flex items-center justify-end gap-2">
+                        <button
+                            class="rounded-lg px-4 py-2 text-sm font-semibold bg-teal-600 text-white hover:bg-teal-700"
+                            (click)="addTask('in-progress')">Añadir</button>
+                        <button class="p-2 rounded-lg hover:bg-slate-100" (click)="cancelAdd()" aria-label="Cancelar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
     </article>
 
-    <article class="flex-grow w-full bg-white mr-10 h-full overflow-hidden relative mb-10" id="done">
-        <header class="flex items-center gap-3 ml-5 mt-5">
-            <span class="bg-purple-700 h-5 w-5 rounded-full"></span>
-            <h2 class="text-2xl font-bold ">Completado</h2>
-            <span class="bg-gray-700 rounded-full h-5 w-5 flex justify-center items-center text-gray-400">{{tasksDone.length}}</span>
-        </header>
-        <p class="ml-5 text-gray-500">Esto se ha completado</p>
-        <main class="mx-4 h-full overflow-auto custom-scrollbar" style="max-height: calc(68vh - 40px)" cdkDropList
-        [cdkDropListData]="tasksDone" (cdkDropListDropped)="onTaskDrop($event, 'tasksDone')">
-            <ng-container *ngFor="let task of tasksDone">
-                <div class="border border-gray-100 shadow-lg w-full h-24 p-5 mt-5 relative" [cdkDragData]="task" cdkDrag>
-                    <div class="flex justify-between">
-                        <p class="mb-20 cursor-pointer hover:underline" (click)="openModal(task)">{{task.text}}</p>
-                        <div class="relative z-10">
-                            <i class="fas fa-ellipsis-v cursor-pointer text-gray-600 hover:text-gray-800" (click)="openMenu(task.id)"></i>
-                            <div *ngIf="selectedTaskId === task.id" class="absolute right-0 mt-2 bg-white border border-gray-300 shadow-md rounded-md">
-                                <ul class="py-2">
-                                    <li>
-                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="deleteTask(task)">Eliminar</a>
-                                    </li>
-                                    <li>
-                                        <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer" (click)="openModal(task)">Editar</a>
-                                    </li>
-                                </ul>
+    <article class="flex flex-col h-[70vh] rounded-2xl bg-white ring-1 ring-black/5 shadow-sm overflow-hidden">
+        <div class="px-5 pt-5 pb-3">
+            <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                    <h2 class="text-lg font-bold text-slate-800">Completado</h2>
+                    <span class="text-slate-500 text-sm">({{ taskDone.length }})</span>
+                </div>
+                <button class="p-2 rounded hover:bg-slate-100">
+                    <i class="fas fa-ellipsis-v text-slate-500"></i>
+                </button>
+            </div>
+            <p class="text-slate-500 text-sm mt-1">Esto se ha completado</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-5 pb-4 space-y-3" cdkDropList #doneList="cdkDropList"
+            [cdkDropListData]="taskDone" [cdkDropListConnectedTo]="[todoList, inProgressList]"
+            (cdkDropListDropped)="onTaskDrop($event)">
+
+            <ng-container *ngFor="let task of taskDone; trackBy: trackById">
+                <div class="group relative rounded-xl bg-white ring-1 ring-black/5 shadow-sm p-4 hover:shadow-md transition"
+                    cdkDrag [cdkDragData]="task">
+                    <div class="flex items-start justify-between gap-3">
+                        <p class="font-medium text-slate-400 line-through">{{ task.text }}</p>
+
+                        <div class="relative">
+                            <button class="ctx-btn p-1.5 rounded hover:bg-slate-100"
+                                (mousedown)="$event.stopPropagation()" (click)="openMenu(task.id, $event)">
+                                <i class="fas fa-ellipsis-h text-slate-500"></i>
+                            </button>
+
+                            <div *ngIf="selectedTaskId === task.id" class="ctx-menu absolute right-0 mt-2 z-20">
+                                <div class="rounded-xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden min-w-40">
+                                    <button class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                                        (click)="openModal(task)">
+                                        <i class="far fa-edit text-slate-500"></i><span>Editar</span>
+                                    </button>
+                                    <div class="h-px bg-slate-100"></div>
+                                    <button
+                                        class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                        (click)="deleteTask(task)">
+                                        <i class="far fa-trash-alt"></i><span>Eliminar</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <p class="absolute bottom-0 right-5 mb-2 text-gray-700"><i class="far fa-clock"></i>
-                        {{task.createdDate}}</p>
+
+                    <p class="mt-2 text-xs text-slate-500">
+                        <i class="far fa-clock"></i> {{ task.createdDate }}
+                    </p>
+
+                    <ng-template cdkDragPreview>
+                        <div class="rounded-xl ring-1 ring-black/5 shadow-lg bg-white p-4 transition-none">
+                            {{ task.text }}
+                        </div>
+                    </ng-template>
                 </div>
             </ng-container>
-        </main>
+        </div>
 
-        <footer class="absolute bottom-0 p-2 bg-gray-700 w-full hover:bg-gray-800 cursor-pointer footer-done"
-            (click)="addcard('done')">
-            <h3 class="text-white"><i class="fas fa-plus"></i> Agregar tarea</h3>
-        </footer>
+        <ng-container *ngIf="addingColumn !== 'done'; else addFormDone">
+            <button
+                class="border-t px-5 py-4 text-teal-700 hover:text-teal-800 text-sm font-semibold flex items-center gap-2"
+                (click)="startAdd('done')">
+                <span class="text-base">+</span> Agregar tarea
+            </button>
+        </ng-container>
+
+        <ng-template #addFormDone>
+            <div class="border-t px-5 py-4">
+                <div class="rounded-2xl ring-1 ring-black/5 bg-white p-3 shadow-sm">
+                    <input [(ngModel)]="newTitle" (keyup.enter)="addTask('done')" type="text"
+                        placeholder="Escribe el título de la nueva tarea..."
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-800
+                        placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500" />
+                    <div class="mt-3 flex items-center justify-end gap-2">
+                        <button
+                            class="rounded-lg px-4 py-2 text-sm font-semibold bg-teal-600 text-white hover:bg-teal-700"
+                            (click)="addTask('done')">Añadir</button>
+                        <button class="p-2 rounded-lg hover:bg-slate-100" (click)="cancelAdd()" aria-label="Cancelar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
     </article>
 </section>
 
-<input *ngIf="addInputDone || addInputToDo || addInputInProgress"
-    class="w-full  text-white p-3 border-blue-600 border-2  bg-gray-800 rounded-md input-class"
-    placeholder="Puedes usar para agregar un artículo en {{status}}" [(ngModel)]="inputValue" />
-
+<!-- Modal -->
 <div *ngIf="modal">
-    <app-modal [task]="selectedTask" [visible]="modal" ></app-modal>
+  <app-modal [task]="selectedTask" [visible]="modal" (closeModal)="modal = false"></app-modal>
 </div>
