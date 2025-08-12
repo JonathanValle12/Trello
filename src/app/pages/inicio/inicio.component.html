@@ -1,0 +1,16 @@
+<div class="min-h-[100dvh] bg-gradient-to-b from-slate-100 to-slate-200/70 bg-fixed flex flex-col">
+  <app-header [layout]="layout" (layoutChange)="onLayoutChange($event)" (deleteAll)="onDeleteAllRequest()"></app-header>
+
+  <main class="flex-1 px-6 py-4">
+    <ng-container *ngIf="layout === 'Board'; else tableView">
+      <app-board></app-board>
+    </ng-container>
+    <ng-template #tableView>
+      <app-table></app-table>
+    </ng-template>
+  </main>
+
+  <app-confirm-dialog [open]="confirmOpen" title="¿Eliminar todas las tareas?"
+    message="Esta acción no se puede deshacer." confirmText="Eliminar" cancelText="Cancelar"
+    (confirm)="onConfirmDelete()" (cancel)="onCancelDelete()" />
+</div>
