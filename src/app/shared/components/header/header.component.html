@@ -1,0 +1,54 @@
+<header class="sticky top-0 z-30 bg-white/90 backdrop-blur shadow-md shadow-slate-200/60">
+  <div class="w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center gap-3">
+    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-teal-700 truncate">
+      Trello
+    </h1>
+
+    <div class="ml-auto flex items-center gap-2 sm:gap-4 min-w-0">
+      <!-- Toggle: no rompe, hace scroll-x si no cabe -->
+      <div role="group" aria-label="Cambiar vista"
+           class="inline-flex rounded-full border border-slate-300 bg-white p-0.5 shadow-inner
+                  overflow-x-auto whitespace-nowrap no-scrollbar max-w-[60vw] sm:max-w-none min-w-0">
+        <button type="button"
+                [attr.aria-pressed]="layout === 'Board'"
+                class="inline-flex items-center gap-2 rounded-l-full border px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors
+                       focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                [ngClass]="layout === 'Board'
+                  ? 'bg-teal-600 text-white border-teal-600 z-10 border-r-transparent'
+                  : 'text-slate-700 hover:bg-slate-50 border-slate-300 border-r-transparent'"
+                (click)="setLayout('Board')">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
+          </svg>
+          <span>Board</span>
+        </button>
+
+        <button type="button"
+                [attr.aria-pressed]="layout === 'Table'"
+                class="inline-flex items-center gap-2 rounded-r-full border px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors -ml-px
+                       focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                [ngClass]="layout === 'Table'
+                  ? 'bg-teal-600 text-white border-teal-600 z-10 border-l-transparent'
+                  : 'text-slate-700 hover:bg-slate-50 border-slate-300 border-l-transparent'"
+                (click)="setLayout('Table')">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h18M3 12h18M3 19h18"/>
+          </svg>
+          <span>Table</span>
+        </button>
+      </div>
+
+      <!-- Botón eliminar: siempre visible, no se encoge raro -->
+      <button type="button"
+        class="shrink-0 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-red-600
+               px-3 sm:px-4 py-2 text-sm font-semibold text-white shadow-lg hover:from-rose-500 hover:to-red-500
+               active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-red-500/50"
+        (click)="deleteAll.emit()">
+        <i class="fas fa-trash-alt text-[12px]"></i>
+        <span class="sm:hidden">Eliminar</span>
+        <span class="hidden sm:inline">Eliminar Todo</span>
+      </button>
+    </div>
+  </div>
+</header>

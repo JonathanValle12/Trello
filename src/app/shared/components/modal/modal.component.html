@@ -1,0 +1,121 @@
+<div *ngIf="visible && task as t" class="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
+  <!-- Backdrop (NO cierra al hacer click) -->
+  <div class="absolute inset-0 bg-slate-900/60"></div>
+
+  <!-- Card -->
+  <div class="relative w-[92vw] max-w-md rounded-2xl bg-white shadow-2xl">
+    <!-- Close -->
+    <button
+      class="absolute right-4 top-4 p-2 rounded-full hover:bg-slate-100"
+      aria-label="Cerrar"
+      (click)="close()">
+      <i class="fas fa-times text-slate-500"></i>
+    </button>
+
+    <form (ngSubmit)="guardar()" class="p-6 sm:p-7">
+      <h3 class="text-2xl font-bold text-slate-900">Editar Tarea</h3>
+      <p class="mt-1 text-slate-500 text-sm">Realiza cambios en tu tarea aquí. Haz click en <b>Guardar cambios</b> al finalizar.</p>
+
+      <!-- Título (label + input en línea) -->
+      <div class="mt-6 grid grid-cols-[auto,1fr] items-center gap-3">
+        <label for="title" class="text-sm font-medium text-slate-700 whitespace-nowrap">Título</label>
+
+        <!-- Input “de edición” con foco destacado -->
+        <div class="relative rounded-lg ring-1 ring-slate-300 focus-within:ring-2 focus-within:ring-teal-600 transition">
+          <input
+            id="title"
+            name="title"
+            type="text"
+            required
+            [(ngModel)]="editedTaskText"
+            autofocus
+            class="w-full rounded-lg bg-white px-3 py-2.5 text-slate-900 outline-none"
+            placeholder="Escribe el título…" />
+          <!-- Lápiz sutil cuando hay texto -->
+          <i *ngIf="editedTaskText.trim().length"
+             class="fas fa-pen text-slate-300 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+        </div>
+      </div>
+
+      <!-- Estado (selector) -->
+      <div class="mt-6 grid grid-cols-[auto,1fr] items-center gap-3">
+        <label class="text-sm font-medium text-slate-700">Estado</label>
+
+        <div class="relative">
+          <!-- Botón “select” -->
+          <button
+            type="button"
+            (click)="toggleOptions()"
+            class="inline-flex w-56 items-center justify-between gap-3 rounded-lg border border-slate-300
+                   px-3 py-2.5 text-sm text-slate-800 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
+            <span class="inline-flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full" [ngClass]="STATUS_META[selectedStatus].dotClass"></span>
+              {{ STATUS_META[selectedStatus].label }}
+            </span>
+            <i class="fas fa-chevron-down text-slate-400"></i>
+          </button>
+
+          <!-- Dropdown -->
+          <div *ngIf="showOptions"
+               class="absolute z-10 mt-1 w-56 rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+            <!-- Opción: Todo -->
+            <button type="button"
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                    (click)="selectOption('todo')">
+              <span class="h-2.5 w-2.5 rounded-full bg-sky-500"></span>
+              <span class="flex-1 text-left">Todo</span>
+              <i *ngIf="selectedStatus === 'todo'" class="fas fa-check text-teal-600"></i>
+            </button>
+
+            <!-- Opción: En progreso -->
+            <button type="button"
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                    (click)="selectOption('in-progress')">
+              <span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>
+              <span class="flex-1 text-left">En progreso</span>
+              <i *ngIf="selectedStatus === 'in-progress'" class="fas fa-check text-teal-600"></i>
+            </button>
+
+            <!-- Opción: Completado -->
+            <button type="button"
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50"
+                    (click)="selectOption('done')">
+              <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+              <span class="flex-1 text-left">Completado</span>
+              <i *ngIf="selectedStatus === 'done'" class="fas fa-check text-teal-600"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meta fechas (pie) -->
+      <div class="mt-8 rounded-lg bg-slate-50 px-4 py-3 border border-slate-200">
+        <div class="flex flex-col gap-1 text-xs text-slate-600">
+          <div class="flex items-center gap-2">
+            <i class="far fa-calendar-plus text-teal-600"></i>
+            <span><strong>Creada:</strong> {{ t.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i class="far fa-clock text-amber-600"></i>
+            <span><strong>Última edición:</strong> {{ t.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="mt-6 flex justify-end gap-3">
+        <button type="button"
+                class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                (click)="close()">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="rounded-lg px-4 py-2 text-sm font-semibold bg-teal-600 text-white hover:bg-teal-700
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="editedTaskText.trim().length === 0">
+          Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
